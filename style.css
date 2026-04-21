@@ -20,7 +20,7 @@ h6 {
 }
 
 .hero-bg {
-    background-image: url('https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=2070&auto=format&fit=crop');
+    background-image: url('image/background.jpg');
     background-size: cover;
     background-position: center;
     animation: kenburns 20s ease-out infinite;
