@@ -39,10 +39,14 @@
     <div class="custom-cursor"></div>
 
     <div id="video-opener">
-        <video id="envelope-video" class="absolute top-0 left-0 w-full h-full object-cover" loop muted playsinline>
-            <source src="https://github.com/farazc60/Project-Images/raw/refs/heads/main/ribbon.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+        <video id="envelope-video"
+    class="absolute top-0 left-0 w-full h-full object-cover"
+    muted
+    playsinline
+    preload="auto">
+
+    <source src="https://github.com/farazc60/Project-Images/raw/refs/heads/main/ribbon.mp4" type="video/mp4">
+</video>
         <button id="open-video-button"><i class="fas fa-play mr-2 text-sm"></i> Click to Open</button>
     </div>
 
@@ -296,10 +300,9 @@
     </div>
 
     <!-- Music Player -->
-    <audio id="background-music" loop>
-        <source src="image/music.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <audio id="background-music" preload="auto" loop>
+    <source src="image/music.mp3" type="audio/mpeg">
+</audio>
     <div id="music-player">
         <i id="music-icon" class="fas fa-play"></i>
     </div>
