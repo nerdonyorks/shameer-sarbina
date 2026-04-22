@@ -35,30 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
      OPEN BUTTON CLICK
   =============================== */
 
-  const startExperience = (e) => {
+  const startExperience = async (e) => {
   if (e) e.preventDefault();
 
   // Hide button
   openButton.style.display = 'none';
 
-  // Always mute video (important for autoplay)
+  // Force video muted
   envelopeVideo.muted = true;
   envelopeVideo.playsInline = true;
 
-  // When video starts → play music
-  envelopeVideo.onplay = () => {
-    music.play().then(() => {
-      isPlaying = true;
-      musicIcon.classList.replace('fa-play', 'fa-pause');
-    }).catch(err => {
-      console.warn("Music failed:", err);
-    });
-  };
+  try {
+    // ✅ Play BOTH inside user interaction
+    await Promise.all([
+      envelopeVideo.play(),
+      music.play()
+    ]);
 
-  // Start video (this is triggered by button click → allowed in iOS)
-  envelopeVideo.play().catch(err => console.warn('Video failed:', err));
+    // Update UI
+    isPlaying = true;
+    musicIcon.classList.replace('fa-play', 'fa-pause');
 
-  // Transition UI
+  } catch (err) {
+    console.warn("Playback failed:", err);
+  }
+
+  // Transition
   setTimeout(() => {
     videoOpener.style.opacity = '0';
     mainContentWrapper.style.opacity = '1';
@@ -69,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 650);
   }, 6500);
 };
-
   openButton.addEventListener('click', startExperience);
   openButton.addEventListener('touchstart', startExperience, { once: true });
 
