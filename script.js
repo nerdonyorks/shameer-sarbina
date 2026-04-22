@@ -174,12 +174,10 @@ if (whatsappBtn) {
 
     const phoneNumber = "917025678013";
 
-    const text = `Wedding Wishes
+    const text = `Wish you Happy Married life Shameer ♡ Sabina
 
 From: ${name}
-
-Message:
-${message}`;
+:${message}`;
 
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
     window.open(whatsappURL, "_blank");
