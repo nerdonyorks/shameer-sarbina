@@ -15,21 +15,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isPlaying = false;
 
-  openButton.addEventListener('click', async () => {
-    openButton.style.display = 'none';
+  openButton.addEventListener('click', () => {
+    // 1. Prioritize Audio Playback for iOS/Safari
+    music.volume = 0.7;
+    const playPromise = music.play();
+    
+    // 2. Play the intro video
     envelopeVideo.play();
 
-    // ✅ Start music ONLY after user click
-    try {
-      music.volume = 0.7;
-      await music.play();
-      musicIcon.classList.remove('fa-play');
-      musicIcon.classList.add('fa-pause');
-      isPlaying = true; // 🔥 CRITICAL FIX
-    } catch (err) {
-      console.warn('Music blocked:', err);
+    // 3. Update UI
+    openButton.style.display = 'none';
+
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        musicIcon.classList.remove('fa-play');
+        musicIcon.classList.add('fa-pause');
+        isPlaying = true;
+      }).catch(err => {
+        console.warn('Music playback failed:', err);
+      });
     }
 
+    // 4. Transition to main content
     setTimeout(() => {
       videoOpener.style.opacity = '0';
       mainContentWrapper.style.opacity = '1';
@@ -174,10 +181,12 @@ if (whatsappBtn) {
 
     const phoneNumber = "917025678013";
 
-    const text = `Happy Married life Shameer ♡ Sabina
+    const text = `Wedding Wishes
 
 From: ${name}
-:${message}`;
+
+Message:
+${message}`;
 
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
     window.open(whatsappURL, "_blank");
