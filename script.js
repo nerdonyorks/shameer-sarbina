@@ -36,45 +36,40 @@ document.addEventListener('DOMContentLoaded', () => {
   =============================== */
 
   const startExperience = (e) => {
-    if (e) e.preventDefault();
+  if (e) e.preventDefault();
 
-    // 1. Play Music FIRST to capture user gesture priority
-    const playPromise = music.play();
-    
-    // 2. Immediate UI response
-    openButton.style.display = 'none';
-    
-    // 3. Optimistically update state
-    isPlaying = true;
-    musicIcon.classList.remove('fa-play');
-    musicIcon.classList.add('fa-pause');
+  // Hide button
+  openButton.style.display = 'none';
 
-    // 4. Play video (Muted)
-    // envelopeVideo.play().catch(err => console.warn('Video failed:', err));
+  // Update UI state
+  isPlaying = true;
+  musicIcon.classList.remove('fa-play');
+  musicIcon.classList.add('fa-pause');
 
-    // if (playPromise !== undefined) {
-    //   playPromise.then(() => {
-    //     console.log('Music started successfully');
-    //   }).catch(err => {
-    //     console.warn('Music failed:', err);
-    //     // Fallback UI update
-    //     isPlaying = false;
-    //     musicIcon.classList.add('fa-play');
-    //     musicIcon.classList.remove('fa-pause');
-    //   });
-    // }
+  // Play video
+  envelopeVideo.play().catch(err => console.warn('Video failed:', err));
 
-    // 5. Transition logic
-    setTimeout(() => {
-      videoOpener.style.opacity = '0';
-      mainContentWrapper.style.opacity = '1';
-      document.body.classList.remove('body-no-scroll');
-
-      setTimeout(() => {
-        videoOpener.style.display = 'none';
-      }, 650);
-    }, 6500); // Video duration approximately
+  // Play music WHEN video starts
+  envelopeVideo.onplay = () => {
+    music.play().catch(err => {
+      console.warn("Music failed:", err);
+      isPlaying = false;
+      musicIcon.classList.add('fa-play');
+      musicIcon.classList.remove('fa-pause');
+    });
   };
+
+  // Transition
+  setTimeout(() => {
+    videoOpener.style.opacity = '0';
+    mainContentWrapper.style.opacity = '1';
+    document.body.classList.remove('body-no-scroll');
+
+    setTimeout(() => {
+      videoOpener.style.display = 'none';
+    }, 650);
+  }, 6500);
+};
 
   openButton.addEventListener('click', startExperience);
   openButton.addEventListener('touchstart', startExperience, { once: true });
