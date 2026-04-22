@@ -38,24 +38,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const startExperience = (e) => {
   if (e) e.preventDefault();
 
+  // Always mute video
+  envelopeVideo.muted = true;
+
   // Hide button
   openButton.style.display = 'none';
-
-  // Update UI state
-  isPlaying = true;
-  musicIcon.classList.remove('fa-play');
-  musicIcon.classList.add('fa-pause');
 
   // Play video
   envelopeVideo.play().catch(err => console.warn('Video failed:', err));
 
-  // Play music WHEN video starts
+  // Play music exactly when video starts
   envelopeVideo.onplay = () => {
-    music.play().catch(err => {
+    music.play().then(() => {
+      isPlaying = true;
+      musicIcon.classList.replace('fa-play', 'fa-pause');
+    }).catch(err => {
       console.warn("Music failed:", err);
       isPlaying = false;
-      musicIcon.classList.add('fa-play');
-      musicIcon.classList.remove('fa-pause');
+      musicIcon.classList.replace('fa-pause', 'fa-play');
     });
   };
 
