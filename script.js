@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ===============================
-     VIDEO OPENER + MUSIC START
-     =============================== */
+     ELEMENTS
+  =============================== */
 
   const openButton = document.getElementById('open-video-button');
   const videoOpener = document.getElementById('video-opener');
@@ -15,28 +15,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isPlaying = false;
 
-  openButton.addEventListener('click', () => {
-    // 1. Prioritize Audio Playback for iOS/Safari
-    music.volume = 0.7;
-    const playPromise = music.play();
-    
-    // 2. Play the intro video
-    envelopeVideo.play();
+  /* ===============================
+     iOS AUDIO UNLOCK (CRITICAL)
+  =============================== */
 
-    // 3. Update UI
-    openButton.style.display = 'none';
+  const unlockAudio = () => {
+    music.play()
+      .then(() => {
+        music.pause();
+        music.currentTime = 0;
+      })
+      .catch(() => {});
+  };
 
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        musicIcon.classList.remove('fa-play');
-        musicIcon.classList.add('fa-pause');
-        isPlaying = true;
-      }).catch(err => {
-        console.warn('Music playback failed:', err);
-      });
+  document.body.addEventListener('touchstart', unlockAudio, { once: true });
+  document.body.addEventListener('click', unlockAudio, { once: true });
+
+  /* ===============================
+     OPEN BUTTON CLICK
+  =============================== */
+
+  openButton.addEventListener('click', async () => {
+
+    try {
+      music.volume = 0.7;
+
+      // MUST be awaited for iOS
+      await music.play();
+
+      isPlaying = true;
+      musicIcon.classList.remove('fa-play');
+      musicIcon.classList.add('fa-pause');
+
+    } catch (err) {
+      console.warn('Audio blocked:', err);
     }
 
-    // 4. Transition to main content
+    // Play video AFTER audio trigger
+    envelopeVideo.play();
+
+    openButton.style.display = 'none';
+
+    // Transition (do NOT rely only on video)
     setTimeout(() => {
       videoOpener.style.opacity = '0';
       mainContentWrapper.style.opacity = '1';
@@ -44,49 +64,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
       setTimeout(() => {
         videoOpener.style.display = 'none';
-      }, 650);
-    }, 6500);
+      }, 600);
+
+    }, 5000); // safe fallback timing
   });
 
   /* ===============================
-     MUSIC PLAYER TOGGLE
-     =============================== */
+     MUSIC TOGGLE
+  =============================== */
 
   musicPlayer.addEventListener('click', async () => {
     try {
       if (isPlaying) {
         music.pause();
-        musicIcon.classList.remove('fa-pause');
-        musicIcon.classList.add('fa-play');
+        musicIcon.classList.replace('fa-pause', 'fa-play');
         isPlaying = false;
       } else {
         await music.play();
-        musicIcon.classList.remove('fa-play');
-        musicIcon.classList.add('fa-pause');
+        musicIcon.classList.replace('fa-play', 'fa-pause');
         isPlaying = true;
       }
     } catch (err) {
-      console.warn('Music toggle blocked:', err);
+      console.warn('Toggle blocked:', err);
     }
   });
 
   /* ===============================
-     CUSTOM CURSOR
-     =============================== */
-
-  // const cursor = document.querySelector('.custom-cursor');
-  // document.addEventListener('mousemove', e => {
-  //   cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-  // });
-
-  // document.querySelectorAll('a, button, input, [class*="cursor-pointer"]').forEach(el => {
-  //   el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-  //   el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-  // });
-
-  /* ===============================
      SCROLL ANIMATIONS
-     =============================== */
+  =============================== */
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -97,18 +102,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+  document.querySelectorAll('.animate-on-scroll')
+    .forEach(el => observer.observe(el));
 
   /* ===============================
-     COUNTDOWN TIMER
-     =============================== */
+     COUNTDOWN
+  =============================== */
 
-  // April is month index 3 (0-indexed: 0=Jan, 1=Feb, 2=Mar, 3=Apr)
-  const weddingDate = new Date(2026, 4, 3, 4, 0, 0).getTime();
-  console.log("Countdown target date:", new Date(weddingDate).toLocaleString());
+  const weddingDate = new Date(2026, 4, 3, 16, 0, 0).getTime();
 
   const timerInterval = setInterval(() => {
-    const now = new Date().getTime();
+    const now = Date.now();
     const distance = weddingDate - now;
 
     if (distance > 0) {
@@ -128,13 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000);
 
   /* ===============================
-     LIGHTBOX GALLERY
-     =============================== */
+     LIGHTBOX
+  =============================== */
 
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
-  const galleryItems = Array.from(document.querySelectorAll('#gallery-grid .gallery-item'));
+  const galleryItems = [...document.querySelectorAll('#gallery-grid .gallery-item')];
   const galleryImages = galleryItems.map(item => item.querySelector('img'));
+
   let currentIndex = 0;
 
   const showImage = index => {
@@ -149,13 +154,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  document.getElementById('lightbox-close').addEventListener('click', () => lightbox.classList.remove('show'));
-  document.getElementById('lightbox-prev').addEventListener('click', () => {
-    showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
-  });
-  document.getElementById('lightbox-next').addEventListener('click', () => {
-    showImage((currentIndex + 1) % galleryImages.length);
-  });
+  document.getElementById('lightbox-close')
+    .addEventListener('click', () => lightbox.classList.remove('show'));
+
+  document.getElementById('lightbox-prev')
+    .addEventListener('click', () =>
+      showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length)
+    );
+
+  document.getElementById('lightbox-next')
+    .addEventListener('click', () =>
+      showImage((currentIndex + 1) % galleryImages.length)
+    );
 
   lightbox.addEventListener('click', e => {
     if (e.target === lightbox) lightbox.classList.remove('show');
@@ -164,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ===============================
-   GUESTBOOK → WHATSAPP
-   =============================== */
+   WHATSAPP
+=============================== */
 
 const whatsappBtn = document.getElementById("whatsapp-btn");
 
@@ -188,7 +198,7 @@ From: ${name}
 Message:
 ${message}`;
 
-    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
-    window.open(whatsappURL, "_blank");
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
   });
 }
