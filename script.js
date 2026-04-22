@@ -38,28 +38,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const startExperience = (e) => {
   if (e) e.preventDefault();
 
-  // Always mute video
-  envelopeVideo.muted = true;
-
   // Hide button
   openButton.style.display = 'none';
 
-  // Play video
-  envelopeVideo.play().catch(err => console.warn('Video failed:', err));
+  // Always mute video (important for autoplay)
+  envelopeVideo.muted = true;
+  envelopeVideo.playsInline = true;
 
-  // Play music exactly when video starts
+  // When video starts → play music
   envelopeVideo.onplay = () => {
     music.play().then(() => {
       isPlaying = true;
       musicIcon.classList.replace('fa-play', 'fa-pause');
     }).catch(err => {
       console.warn("Music failed:", err);
-      isPlaying = false;
-      musicIcon.classList.replace('fa-pause', 'fa-play');
     });
   };
 
-  // Transition
+  // Start video (this is triggered by button click → allowed in iOS)
+  envelopeVideo.play().catch(err => console.warn('Video failed:', err));
+
+  // Transition UI
   setTimeout(() => {
     videoOpener.style.opacity = '0';
     mainContentWrapper.style.opacity = '1';
