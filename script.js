@@ -19,15 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
      iOS AUDIO UNLOCK (CRITICAL)
   =============================== */
 
+  // Priming the audio for iOS/Safari
   const unlockAudio = () => {
-    music.play()
-      .then(() => {
-        music.pause();
-        music.currentTime = 0;
-      })
-      .catch(() => {});
+    music.play().then(() => {
+      music.pause();
+      music.currentTime = 0;
+    }).catch(e => console.log("Audio warm-up: Interaction required"));
   };
 
+  // Listen on any interaction to "warm up" the audio engine
   document.body.addEventListener('touchstart', unlockAudio, { once: true });
   document.body.addEventListener('click', unlockAudio, { once: true });
 
@@ -35,28 +35,36 @@ document.addEventListener('DOMContentLoaded', () => {
      OPEN BUTTON CLICK
   =============================== */
 
-  openButton.addEventListener('click', async () => {
+  const startExperience = (e) => {
+    if (e) e.preventDefault();
 
-    try {
-      music.volume = 0.7;
+    // 1. Play Music FIRST to capture user gesture priority
+    const playPromise = music.play();
+    
+    // 2. Immediate UI response
+    openButton.style.display = 'none';
+    
+    // 3. Optimistically update state
+    isPlaying = true;
+    musicIcon.classList.remove('fa-play');
+    musicIcon.classList.add('fa-pause');
 
-      // MUST be awaited for iOS
-      await music.play();
+    // 4. Play video (Muted)
+    envelopeVideo.play().catch(err => console.warn('Video failed:', err));
 
-      isPlaying = true;
-      musicIcon.classList.remove('fa-play');
-      musicIcon.classList.add('fa-pause');
-
-    } catch (err) {
-      console.warn('Audio blocked:', err);
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        console.log('Music started successfully');
+      }).catch(err => {
+        console.warn('Music failed:', err);
+        // Fallback UI update
+        isPlaying = false;
+        musicIcon.classList.add('fa-play');
+        musicIcon.classList.remove('fa-pause');
+      });
     }
 
-    // Play video AFTER audio trigger
-    envelopeVideo.play();
-
-    openButton.style.display = 'none';
-
-    // Transition (do NOT rely only on video)
+    // 5. Transition logic
     setTimeout(() => {
       videoOpener.style.opacity = '0';
       mainContentWrapper.style.opacity = '1';
@@ -64,10 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       setTimeout(() => {
         videoOpener.style.display = 'none';
-      }, 600);
+      }, 650);
+    }, 6500); // Video duration approximately
+  };
 
-    }, 5000); // safe fallback timing
-  });
+  openButton.addEventListener('click', startExperience);
+  openButton.addEventListener('touchstart', startExperience, { once: true });
 
   /* ===============================
      MUSIC TOGGLE
