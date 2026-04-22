@@ -67,15 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
      CUSTOM CURSOR
      =============================== */
 
-  const cursor = document.querySelector('.custom-cursor');
-  document.addEventListener('mousemove', e => {
-    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-  });
+  // const cursor = document.querySelector('.custom-cursor');
+  // document.addEventListener('mousemove', e => {
+  //   cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  // });
 
-  document.querySelectorAll('a, button, input, [class*="cursor-pointer"]').forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-  });
+  // document.querySelectorAll('a, button, input, [class*="cursor-pointer"]').forEach(el => {
+  //   el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+  //   el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+  // });
 
   /* ===============================
      SCROLL ANIMATIONS
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
      COUNTDOWN TIMER
      =============================== */
 
-  const weddingDate = new Date(2026, 3, 29, 11, 0, 0).getTime(); // April 29, 2026, 11:00 AM
+  const weddingDate = new Date(2026, 4, 3, 11, 0, 0).getTime(); // April 29, 2026, 11:00 AM
 
   const timerInterval = setInterval(() => {
     const now = new Date().getTime();
