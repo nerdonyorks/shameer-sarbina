@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const musicPlayer = document.getElementById('music-player');
   const musicIcon = document.getElementById('music-icon');
 
-  let isPlaying = false;
+  let isPlaying = true;
 
   openButton.addEventListener('click', async () => {
     openButton.style.display = 'none';
