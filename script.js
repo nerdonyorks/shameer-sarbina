@@ -35,42 +35,41 @@ document.addEventListener('DOMContentLoaded', () => {
      OPEN BUTTON CLICK
   =============================== */
 
-  const startExperience = async (e) => {
-  if (e) e.preventDefault();
+  const startExperience = (e) => {
+    if (e) e.preventDefault();
 
-  // Hide button
-  openButton.style.display = 'none';
+    // 1. Immediate UI response
+    openButton.style.display = 'none';
 
-  // Force video muted
-  envelopeVideo.muted = true;
-  envelopeVideo.playsInline = true;
-
-  try {
-    // ✅ Play BOTH inside user interaction
-    await Promise.all([
-      envelopeVideo.play(),
-      music.play()
-    ]);
-
-    // Update UI
+    // 2. Optimistically update audio state
     isPlaying = true;
     musicIcon.classList.replace('fa-play', 'fa-pause');
 
-  } catch (err) {
-    console.warn("Playback failed:", err);
-  }
+    // 3. Start Music (Capture user interaction context early)
+    music.play().then(() => {
+      console.log('Music started successfully');
+    }).catch(err => {
+      console.warn('Music playback failed:', err);
+      isPlaying = false;
+      musicIcon.classList.replace('fa-pause', 'fa-play');
+    });
 
-  // Transition
-  setTimeout(() => {
-    videoOpener.style.opacity = '0';
-    mainContentWrapper.style.opacity = '1';
-    document.body.classList.remove('body-no-scroll');
+    // 4. Start Video (Muted)
+    envelopeVideo.muted = true;
+    envelopeVideo.playsInline = true;
+    envelopeVideo.play().catch(err => console.warn('Video playback failed:', err));
 
+    // 5. Transition to main content (Don't wait for media promises to settle)
     setTimeout(() => {
-      videoOpener.style.display = 'none';
-    }, 650);
-  }, 6500);
-};
+      videoOpener.style.opacity = '0';
+      mainContentWrapper.style.opacity = '1';
+      document.body.classList.remove('body-no-scroll');
+
+      setTimeout(() => {
+        videoOpener.style.display = 'none';
+      }, 650);
+    }, 6500); // Transition occurs after intro video duration
+  };
   openButton.addEventListener('click', startExperience);
   openButton.addEventListener('touchstart', startExperience, { once: true });
 
