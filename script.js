@@ -50,19 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     musicIcon.classList.add('fa-pause');
 
     // 4. Play video (Muted)
-    envelopeVideo.play().catch(err => console.warn('Video failed:', err));
+    // envelopeVideo.play().catch(err => console.warn('Video failed:', err));
 
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        console.log('Music started successfully');
-      }).catch(err => {
-        console.warn('Music failed:', err);
-        // Fallback UI update
-        isPlaying = false;
-        musicIcon.classList.add('fa-play');
-        musicIcon.classList.remove('fa-pause');
-      });
-    }
+    // if (playPromise !== undefined) {
+    //   playPromise.then(() => {
+    //     console.log('Music started successfully');
+    //   }).catch(err => {
+    //     console.warn('Music failed:', err);
+    //     // Fallback UI update
+    //     isPlaying = false;
+    //     musicIcon.classList.add('fa-play');
+    //     musicIcon.classList.remove('fa-pause');
+    //   });
+    // }
 
     // 5. Transition logic
     setTimeout(() => {
